@@ -162,12 +162,12 @@ if uploaded_file is not None:
         df_nps = pd.DataFrame([cell_value], columns=["Apprentice NPS"], index=[1])
         df_nps['Date'] = pdf_date
 
-        print(df_nps)
+        # print(df_nps)
 
         # PROCESS FOR COACH EXPERTISE AND COACH ALIGNMENT
 
         # Create a DataFrame from the cell value
-        df_expertise_alignment = pd.DataFrame(table_6_expertise_alignment)
+        # df_expertise_alignment = pd.DataFrame(table_6_expertise_alignment)
 
         # Extract Expertise Value and Alignment Value
 
@@ -183,21 +183,21 @@ if uploaded_file is not None:
 
         df_expertise_alignment["Date"] = pdf_date
 
-        print(df_expertise_alignment)
+         # Anonymize apprentice names
+        df_lmnps = anonymise_apprentice_names(df_lmnps)
+        df_lmroi = anonymise_apprentice_names(df_lmroi)
+        df_offtrack = anonymise_apprentice_names(df_offtrack)
+        df_last_attendance = anonymise_apprentice_names(df_last_attendance)
 
-        # Function to anonymize apprentice names
-        def anonymize_apprentice_names(df):
-            df['Apprentice'] = df.index.to_series().apply(lambda i: f'Apprentice {i}')
-            return df
+        # Display or further process dataframes
+        st.write("LM NPS Data", df_lmnps)
+        st.write("LM ROI Data", df_lmroi)
+        st.write("Offtrack Data", df_offtrack)
+        st.write("Last Attendance Data", df_last_attendance)
+        # Display NPS & Expertise/Alignment Data
+        st.write("Apprentice NPS", df_nps)
+        st.write("Coach Expertise & Alignment", df_expertise_alignment)
 
-        # Anonymize the apprentices names in each relevant DataFrame
-        df_lmnps = anonymize_apprentice_names(df_lmnps)
-        df_lmroi = anonymize_apprentice_names(df_lmroi)
-        df_offtrack = anonymize_apprentice_names(df_offtrack)
-        df_last_attendance = anonymize_apprentice_names(df_last_attendance)
+        
 
-        print(df_lmnps)
-        print(df_lmroi)
-        print(df_offtrack)
-        print(df_last_attendance)
-
+        
