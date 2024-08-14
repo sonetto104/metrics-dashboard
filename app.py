@@ -1,6 +1,7 @@
 import streamlit as st
 import pdfplumber
 import PyPDF2
+from pathlib import Path
 import json
 import pandas as pd
 from helper_functions import extract_date_from_pdf, anonymise_apprentice_names
@@ -8,24 +9,13 @@ import os
 
 st.title("PDF Metrics Analysis")
 
-# Load configuration
-config_path = "config.json"
-if os.path.exists(config_path):
-    with open(config_path, 'r') as config_file:
-        config = json.load(config_file)
-    folder_path = config["metrics_folder_path"]
-else:
-    folder_path = "anonymized_data"
-
 uploaded_file = st.file_uploader("Upload a PDF file", type=['pdf'])
 
 def save_to_csv(df, filename):
-    # Ensure the folder exists
-    if not os.path.exists(folder_path):
-        os.makedirs(folder_path)
-    # Define the path where the CSV will be saved
-    file_path = os.path.join(folder_path, filename)
-    # Save the DataFrame to a CSV file
+    folder_path = Path("anonymised_csv_files")
+    if not folder_path.exists():
+        folder_path.mkdir(parents=True, exist_ok=True)
+    file_path = folder_path / filename
     df.to_csv(file_path, index=False)
     return file_path
 
@@ -215,6 +205,8 @@ if uploaded_file is not None:
         save_to_csv(df_lmroi, f"df_lmroi_{pdf_date}.csv")
         save_to_csv(df_offtrack, f"df_offtrack_{pdf_date}.csv")
         save_to_csv(df_last_attendance, f"df_last_attendance_{pdf_date}.csv")
+        save_to_csv(df_expertise_alignment, f"df_expertise_alignment_{pdf_date}.csv")
+        save_to_csv(df_nps, f"df_nps_{pdf_date}.csv")
 
         # Display or further process dataframes
         st.write("LM NPS Data", df_lmnps)
