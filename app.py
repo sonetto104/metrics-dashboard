@@ -14,12 +14,13 @@ if uploaded_file is not None:
         pdf_date = extract_date_from_pdf(uploaded_file)
         tables = [page.extract_table() for page in pdf.pages]
 
-        # Convert the extracted table to a DataFrame
-        df_lmnps = pd.DataFrame(table1)
-        df_lmroi = pd.DataFrame(table2)
-        df_offtrack = pd.DataFrame(table3)
-        df_last_attendance = pd.DataFrame(table4)
-        df_nps = pd.DataFrame(table5_nps)
+        # Define dataframes and process them
+        df_lmnps = pd.DataFrame(tables[0])
+        df_lmroi = pd.DataFrame(tables[1])
+        df_offtrack = pd.DataFrame(tables[2])
+        df_last_attendance = pd.DataFrame(tables[3])
+        df_nps = pd.DataFrame(tables[7])
+        df_expertise_alignment = pd.DataFrame(tables[8])
 
         # Remove rows 0, 1, 2 because they are empty
         def drop_0_and_1(df):
@@ -199,3 +200,4 @@ if uploaded_file is not None:
         print(df_lmroi)
         print(df_offtrack)
         print(df_last_attendance)
+
