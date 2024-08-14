@@ -11,6 +11,6 @@ def extract_date_from_pdf(pdf_path):
     else:
         return None
 
-def anonymize_apprentice_names(df):
+def anonymise_apprentice_names(df):
     df['Apprentice'] = df.index.to_series().apply(lambda i: f'Apprentice {i}')
     return df
