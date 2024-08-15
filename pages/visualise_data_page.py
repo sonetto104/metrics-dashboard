@@ -7,7 +7,7 @@ def visualize_data_page():
     st.title("Historical Metrics Visualization")
     
     # Load all CSV files from the data directory
-    data_path = Path("data")
+    data_path = Path("anonymised_csv_files")
     
     if data_path.exists():
         lmnps_files = glob.glob(str(data_path / "df_lmnps_*.csv"))
