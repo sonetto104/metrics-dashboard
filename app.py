@@ -7,6 +7,7 @@ import pandas as pd
 from helper_functions import extract_date_from_pdf, anonymise_apprentice_names
 import os
 import base64
+import glob
 
 st.title("PDF Metrics Analysis")
 
@@ -223,6 +224,16 @@ if uploaded_file is not None:
         # Display NPS & Expertise/Alignment Data
         st.write("Apprentice NPS", df_nps)
         st.write("Coach Expertise & Alignment", df_expertise_alignment)
+
+        for df, name in zip([df_lmnps, df_lmroi, df_offtrack, df_last_attendance, df_nps, df_expertise_alignment], 
+                            [f"df_lmnps_{pdf_date}.csv", f"df_lmroi_{pdf_date}.csv", 
+                            f"df_offtrack_{pdf_date}.csv", f"df_last_attendance_{pdf_date}.csv",
+                            f"df_last_attendance_{pdf_date}.csv", f"df_exerptise_alignment_{pdf_date}.csv",]):
+            st.markdown(get_table_download_link(df, name), unsafe_allow_html=True)
+
+
+        # Visualising Data
+        
 
         
 
