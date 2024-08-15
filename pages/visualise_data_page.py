@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 from pathlib import Path
 import glob
+import plotly.express as px 
+import plotly.graph_objects as go  # Import Plotly graph_objects
 
 def visualize_data_page():
     st.title("Historical Metrics Visualization")
@@ -31,28 +33,69 @@ def visualize_data_page():
         st.write("NPS Score Historical Data", df_nps)
         
         # Visualizations
-    
-        st.subheader("LM NPS Over Time")
-        st.line_chart(df_lmnps.set_index('Date')['LM NPS'])
+        
+        mean_lmnps_over_time = df_lmnps.groupby('Date')['LM NPS'].mean().reset_index()
 
-        st.subheader("LM ROI Over Time")
-        st.line_chart(df_lmroi.set_index('Date')['LM ROI Out of 6'])
+        # Create Plotly line chart
+        fig = px.line(mean_lmnps_over_time, x='Date', y='LM NPS', title='Average NPS Score Over Time')
+        
+        # Display the Plotly chart in Streamlit
+        st.plotly_chart(fig)
 
-        st.subheader("Offtrack Status Over Time")
-        df_offtrack_count = df_offtrack.groupby(['Date', 'Status']).size().unstack(fill_value=0)
-        st.line_chart(df_offtrack_count)
+        mean_lmroi_over_time = df_lmroi.groupby('Date')['LM ROI Out of 6'].mean().reset_index()
+        fig_lmroi = px.line(mean_lmroi_over_time, x='Date', y='LM ROI Out of 6', title='Average LM ROI Score Over Time')
+        st.plotly_chart(fig_lmroi)
 
-        st.subheader("Days Since Last Attendance Over Time")
-        st.line_chart(df_last_attendance.set_index('Date')['Days Since Last Attendance'])
+        # Offtrack Status: Calculate the count of "On Track" and "Offtrack" status for each date
+        status_count_over_time = df_offtrack.groupby(['Date', 'Status']).size().unstack(fill_value=0).reset_index()
+        
+        # Inspect the DataFrame's contents
+        st.write(status_count_over_time)
 
-        st.subheader("Coach Expertise Over Time")
-        st.line_chart(df_expertise_alignment.set_index('Date')['Coach Expertise'])
+        # Create the line graph
+        fig_offtrack = go.Figure()
+        if 'On-Track' in status_count_over_time.columns:
+            fig_offtrack.add_trace(
+                go.Scatter(
+                    x=status_count_over_time['Date'], 
+                    y=status_count_over_time['On-Track'], 
+                    mode='lines', 
+                    name='On-Track'
+                )
+            )
+        if 'Off-Track' in status_count_over_time.columns:
+            fig_offtrack.add_trace(
+                go.Scatter(
+                    x=status_count_over_time['Date'], 
+                    y=status_count_over_time['Off-Track'], 
+                    mode='lines', 
+                    name='Off-Track'
+                )
+            )
+        fig_offtrack.update_layout(
+            title='On Track vs Off Track Over Time',
+            xaxis_title='Date',
+            yaxis_title='Count',
+            legend_title='Status'
+        )
+        st.plotly_chart(fig_offtrack)
 
-        st.subheader("Coach Alignment Over Time")
-        st.line_chart(df_expertise_alignment.set_index('Date')['Coach Alignment'])
+        mean_last_attendance_over_time = df_last_attendance.groupby('Date')['Days Since Last Attendance'].mean().reset_index()
+        fig_last_attendance = px.line(mean_last_attendance_over_time, x='Date', y='Days Since Last Attendance', title='Average Days Since Last Attendance Over Time')
+        st.plotly_chart(fig_last_attendance)
 
-        st.subheader("NPS Score Over Time")
-        st.line_chart(df_nps.set_index('Date')['Apprentice NPS'])
+        mean_expertise_over_time = df_expertise_alignment.groupby('Date')['Coach Expertise'].mean().reset_index()
+        fig_expertise = px.line(mean_expertise_over_time, x='Date', y='Coach Expertise', title='Average Coach Expertise Over Time')
+        st.plotly_chart(fig_expertise)
+
+        mean_alignment_over_time = df_expertise_alignment.groupby('Date')['Coach Alignment'].mean().reset_index()
+        fig_alignment = px.line(mean_alignment_over_time, x='Date', y='Coach Alignment', title='Average Coach Alignment Over Time')
+        st.plotly_chart(fig_alignment)
+
+        # NPS Score
+        mean_nps_over_time = df_nps.groupby('Date')['Apprentice NPS'].mean().reset_index()
+        fig_nps = px.line(mean_nps_over_time, x='Date', y='Apprentice NPS', title='Average NPS Score Over Time')
+        st.plotly_chart(fig_nps)
         
     else:
         st.warning("No historical data found.")
