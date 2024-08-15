@@ -1,13 +1,10 @@
 import streamlit as st
 import pdfplumber
-import PyPDF2
 from pathlib import Path
-import json
 import pandas as pd
 from helper_functions import extract_date_from_pdf, anonymise_apprentice_names
-import os
 import base64
-import glob
+
 
 def process_data_page():
 
