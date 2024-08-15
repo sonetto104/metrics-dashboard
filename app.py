@@ -6,6 +6,7 @@ import json
 import pandas as pd
 from helper_functions import extract_date_from_pdf, anonymise_apprentice_names
 import os
+import base64
 
 st.title("PDF Metrics Analysis")
 
@@ -18,6 +19,12 @@ def save_to_csv(df, filename):
     file_path = folder_path / filename
     df.to_csv(file_path, index=False)
     return file_path
+
+def get_table_download_link(df, filename):
+    """Generates a link allowing the csv file to be downloaded."""
+    csv = df.to_csv(index=False)
+    b64 = base64.b64encode(csv.encode()).decode()  # B64 encode
+    return f'<a href="data:file/csv;base64,{b64}" download="{filename}">Download {filename}</a>'
 
 if uploaded_file is not None:
     with pdfplumber.open(uploaded_file) as pdf:
