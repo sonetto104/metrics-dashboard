@@ -180,12 +180,7 @@ def process_data_page():
             df_nps = pd.DataFrame([cell_value], columns=["Apprentice NPS"], index=[1])
             df_nps['Date'] = pdf_date
 
-            # print(df_nps)
-
             # PROCESS FOR COACH EXPERTISE AND COACH ALIGNMENT
-
-            # Create a DataFrame from the cell value
-            # df_expertise_alignment = pd.DataFrame(table_6_expertise_alignment)
 
             # Extract Expertise Value and Alignment Value
 
@@ -215,12 +210,15 @@ def process_data_page():
             save_to_csv(df_expertise_alignment, f"df_expertise_alignment_{pdf_date}.csv")
             save_to_csv(df_nps, f"df_nps_{pdf_date}.csv")
 
-            # Display or further process dataframes
+            # Display dataframes
+
             st.write("LM NPS Data", df_lmnps)
             st.write("LM ROI Data", df_lmroi)
             st.write("Offtrack Data", df_offtrack)
             st.write("Last Attendance Data", df_last_attendance)
+
             # Display NPS & Expertise/Alignment Data
+            
             st.write("Apprentice NPS", df_nps)
             st.write("Coach Expertise & Alignment", df_expertise_alignment)
 
