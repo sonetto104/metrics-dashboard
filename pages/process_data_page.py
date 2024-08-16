@@ -11,7 +11,7 @@ def process_data_page():
     st.title("PDF Metrics Analysis")
 
     # Add a radio button to select the data category
-    data_category = st.radio("Select Data Category:", ["Individual", "Team", "Department"])
+    data_category = st.radio("Select Data Category:", ["Individual", "Programme", "Department"])
 
     uploaded_file = st.file_uploader("Upload a PDF file", type=['pdf'])
 

@@ -3,13 +3,20 @@ import pandas as pd
 from pathlib import Path
 import glob
 import plotly.express as px 
-import plotly.graph_objects as go  # Import Plotly graph_objects
+import plotly.graph_objects as go
+
+def load_and_concat_data(pattern):
+    files = glob.glob(pattern)
+    if files:
+        return pd.concat((pd.read_csv(f) for f in files), ignore_index=True)
+    else:
+        return pd.DataFrame()
 
 def visualize_data_page():
     st.title("Historical Metrics Visualization")
 
     base_path = "anonymised_csv_files"
-    categories = ["individual", "team", "department"]
+    categories = ["individual", "programme", "department"]
     
     data = {
         category: {
@@ -23,39 +30,147 @@ def visualize_data_page():
         for category in categories
     }
 
-    st.write("Data Categories", data)
+    # Function to plot the graphs for each metric and category
+    def plot_metric(metric, y_label, title):
+        fig = go.Figure()
+        for category, dfs in data.items():
+            df = dfs[metric]
+            if not df.empty:
+                grouped_data = df.groupby('Date')[y_label].mean().reset_index()
+                fig.add_trace(
+                    go.Scatter(
+                        x=grouped_data['Date'], 
+                        y=grouped_data[y_label], 
+                        mode='lines', 
+                        name=f'{category.capitalize()} {y_label}'
+                    )
+                )
+        fig.update_layout(
+            title=title,
+            xaxis_title='Date',
+            yaxis_title=y_label,
+            legend_title='Category'
+        )
+        st.plotly_chart(fig)
+    
+    # LM NPS
+    plot_metric("lmnps", "LM NPS", "Average LM NPS Over Time")
 
-    for metric in ["lmnps", "lmroi", "offtrack", "last_attendance", "expertise_alignment", "nps"]:
-        for category in categories:
-            df = data[category][metric]
-            if metric == "offtrack":
-                status_count_over_time = df.groupby(['Date', 'Status']).size().unstack(fill_value=0).reset_index()
-                fig = go.Figure()
-                if 'On-Track' in status_count_over_time.columns:
-                    fig.add_trace(
-                        go.Scatter(
-                            x=status_count_over_time['Date'], 
-                            y=status_count_over_time['On-Track'], 
-                            mode='lines', 
-                            name=f'{category.capitalize()} On-Track'
-                        )
+    # LM ROI
+    plot_metric("lmroi", "LM ROI Out of 6", "Average LM ROI Over Time")
+
+    # Off-track status
+    fig_offtrack = go.Figure()
+    for category, dfs in data.items():
+        df = dfs["offtrack"]
+        if not df.empty:
+            status_count_over_time = df.groupby(['Date', 'Status']).size().unstack(fill_value=0).reset_index()
+            if 'On-Track' in status_count_over_time.columns:
+                fig_offtrack.add_trace(
+                    go.Scatter(
+                        x=status_count_over_time['Date'], 
+                        y=status_count_over_time['On-Track'], 
+                        mode='lines', 
+                        name=f'{category.capitalize()} On-Track'
                     )
-                if 'Off-Track' in status_count_over_time.columns:
-                    fig.add_trace(
-                        go.Scatter(
-                            x=status_count_over_time['Date'], 
-                            y=status_count_over_time['Off-Track'], 
-                            mode='lines', 
-                            name=f'{category.capitalize()} Off-Track'
-                        )
+                )
+            if 'Off-Track' in status_count_over_time.columns:
+                fig_offtrack.add_trace(
+                    go.Scatter(
+                        x=status_count_over_time['Date'], 
+                        y=status_count_over_time['Off-Track'], 
+                        mode='lines', 
+                        name=f'{category.capitalize()} Off-Track'
                     )
-            else:
-                groupby_column = 'Date'
-                metric_column = df.columns[1]  # Assumes second column is the metric column
-                mean_metric_over_time = df.groupby(groupby_column)[metric_column].mean().reset_index()
-                fig = px.line(mean_metric_over_time, x=groupby_column, y=metric_column, title=f'Average {metric.capitalize()} Over Time')
+                )
+    fig_offtrack.update_layout(
+        title='On Track vs Off Track Over Time',
+        xaxis_title='Date',
+        yaxis_title='Count',
+        legend_title='Status'
+    )
+    st.plotly_chart(fig_offtrack)
+
+    # Last Attendance
+    plot_metric("last_attendance", "Days Since Last Attendance", "Average Days Since Last Attendance Over Time")
+
+    # Coach Expertise and Alignment
+    plot_metric("expertise_alignment", "Coach Expertise", "Average Coach Expertise Over Time")
+    plot_metric("expertise_alignment", "Coach Alignment", "Average Coach Alignment Over Time")
+
+    # Apprentice NPS Score
+    plot_metric("nps", "Apprentice NPS", "Average Apprentice NPS Over Time")
+
+if __name__ == "__main__":
+    visualize_data_page()
+
+
+
+
+
+
+
+
+
+
+# import streamlit as st
+# import pandas as pd
+# from pathlib import Path
+# import glob
+# import plotly.express as px 
+# import plotly.graph_objects as go  # Import Plotly graph_objects
+
+# def visualize_data_page():
+#     st.title("Historical Metrics Visualization")
+
+#     base_path = "anonymised_csv_files"
+#     categories = ["individual", "team", "department"]
+    
+#     data = {
+#         category: {
+#             "lmnps": load_and_concat_data(f"{base_path}/{category}/df_lmnps_*.csv"),
+#             "lmroi": load_and_concat_data(f"{base_path}/{category}/df_lmroi_*.csv"),
+#             "offtrack": load_and_concat_data(f"{base_path}/{category}/df_offtrack_*.csv"),
+#             "last_attendance": load_and_concat_data(f"{base_path}/{category}/df_last_attendance_*.csv"),
+#             "expertise_alignment": load_and_concat_data(f"{base_path}/{category}/df_expertise_alignment_*.csv"),
+#             "nps": load_and_concat_data(f"{base_path}/{category}/df_nps_*.csv")
+#         }
+#         for category in categories
+#     }
+
+#     st.write("Data Categories", data)
+
+#     for metric in ["lmnps", "lmroi", "offtrack", "last_attendance", "expertise_alignment", "nps"]:
+#         for category in categories:
+#             df = data[category][metric]
+#             if metric == "offtrack":
+#                 status_count_over_time = df.groupby(['Date', 'Status']).size().unstack(fill_value=0).reset_index()
+#                 fig = go.Figure()
+#                 if 'On-Track' in status_count_over_time.columns:
+#                     fig.add_trace(
+#                         go.Scatter(
+#                             x=status_count_over_time['Date'], 
+#                             y=status_count_over_time['On-Track'], 
+#                             mode='lines', 
+#                             name=f'{category.capitalize()} On-Track'
+#                         )
+#                     )
+#                 if 'Off-Track' in status_count_over_time.columns:
+#                     fig.add_trace(
+#                         go.Scatter(
+#                             x=status_count_over_time['Date'], 
+#                             y=status_count_over_time['Off-Track'], 
+#                             mode='lines', 
+#                             name=f'{category.capitalize()} Off-Track'
+#                         )
+#                     )
+#             else:
+#                 groupby_column = 'Date'
+#                 metric_column = df.columns[1]  # Assumes second column is the metric column
+#                 mean_metric_over_time = df.groupby(groupby_column)[metric_column].mean().reset_index()
+#                 fig = px.line(mean_metric_over_time, x=groupby_column, y=metric_column, title=f'Average {metric.capitalize()} Over Time')
             
-            st.plotly_chart(fig)
+#             st.plotly_chart(fig)
 
 
     
