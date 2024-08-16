@@ -10,10 +10,19 @@ def process_data_page():
 
     st.title("PDF Metrics Analysis")
 
+    # Add a radio button to select the data category
+    data_category = st.radio("Select Data Category:", ["Individual", "Team", "Department"])
+
     uploaded_file = st.file_uploader("Upload a PDF file", type=['pdf'])
 
     def save_to_csv(df, filename):
-        folder_path = Path("anonymised_csv_files")
+        # Determine the folder path based on data category
+        folder_path_map = {
+            "Individual": "anonymised_csv_files/individual",
+            "Programme": "anonymised_csv_files/programme",
+            "Department": "anonymised_csv_files/department"
+        }
+        folder_path = Path(folder_path_map[data_category])
         if not folder_path.exists():
             folder_path.mkdir(parents=True, exist_ok=True)
         file_path = folder_path / filename
