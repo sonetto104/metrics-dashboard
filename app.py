@@ -6,7 +6,7 @@ from pages.visualise_data_page import visualise_data_page
 
 # Set page title
 st.sidebar.title("Navigation")
-page = st.sidebar.radio("Select a page:", ["Process Data", "Visualize Data"])
+page = st.sidebar.radio("Select a page:", ["Process Data", "Visualise Data"])
 
 # Navigate to the selected page
 if page == "Process Data":
