@@ -194,7 +194,7 @@ def visualise_data_page():
     # Load data from all required directories
     individual_data = load_data('anonymised_csv_files/individual/*.csv', 'Individual')
     department_data = load_data('anonymised_csv_files/department/*.csv', 'Department')
-    programme_data = load_data('anonymised_csv_files/team/*.csv', 'Programme')
+    programme_data = load_data('anonymised_csv_files/programme/*.csv', 'Programme')
 
     # Ensure 'Date' columns are in datetime format for each DataFrame
     for df in [individual_data, department_data, programme_data]:

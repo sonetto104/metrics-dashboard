@@ -248,14 +248,14 @@ def process_data_page():
     st.title("PDF Metrics Analysis")
 
     # Add a radio button to select the data category (Individual, Team, Department)
-    data_category = st.radio("Select Data Category:", ["Individual", "Team", "Department"])
+    data_category = st.radio("Select Data Category:", ["Individual", "Programme", "Department"])
 
     uploaded_file = st.file_uploader("Upload a PDF file", type=['pdf'])
 
     def save_to_csv(df, filename):
         folder_path_map = {
             "Individual": "anonymised_csv_files/individual",
-            "Team": "anonymised_csv_files/team",
+            "Programme": "anonymised_csv_files/programme",
             "Department": "anonymised_csv_files/department"
         }
         folder_path = Path(folder_path_map[data_category])
