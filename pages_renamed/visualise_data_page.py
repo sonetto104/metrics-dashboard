@@ -19,14 +19,8 @@ def visualise_data_page():
     department_data = load_data('anonymised_csv_files/department/*.csv', 'Department')
     programme_data = load_data('anonymised_csv_files/programme/*.csv', 'Programme')
 
-    # Combine all data
+    # Combine all data for each metric
     combined_data = pd.concat([individual_data, department_data, programme_data], ignore_index=True)
-
-    # Check if there is any data available
-    if combined_data.empty:
-        st.title('Comparison of Metrics Over Time')
-        st.write('No data to display')
-        return
 
     # Ensure 'Date' column is in datetime format
     combined_data['Date'] = pd.to_datetime(combined_data['Date'])
@@ -57,43 +51,46 @@ def visualise_data_page():
 
     # Function to create plots for a given metric with optional y-axis range
     def create_plot(y_column, title, yaxis_title, yaxis_range=None):
-        if y_column in grouped_data.columns and not grouped_data[y_column].dropna().empty:
-            fig = px.line(
-                grouped_data, 
-                x='Date', 
-                y=y_column, 
-                color='Source', 
-                markers=True, 
-                title=title
-            )
-            fig.update_layout(
-                yaxis_title=yaxis_title,
-                xaxis=dict(tickformat='%d-%m-%Y')
-            )
-            if yaxis_range:
-                fig.update_yaxes(range=yaxis_range)
-            st.plotly_chart(fig)
-        else:
-            st.write(f'No data to display for {title}')
+        fig = px.line(
+            grouped_data, 
+            x='Date', 
+            y=y_column, 
+            color='Source', 
+            markers=True, 
+            title=title
+        )
+        fig.update_layout(
+            yaxis_title=yaxis_title,
+            xaxis=dict(tickformat='%d-%m-%Y')
+        )
+        if yaxis_range:
+            fig.update_yaxes(range=yaxis_range)
+        st.plotly_chart(fig)
 
-    # Create visualizations
+    # Coach Expertise Visualization
     st.header('Coach Expertise')
     create_plot('Coach Expertise', 'Coach Expertise', 'Coach Expertise Score', yaxis_range=[1, 6])
 
+    # Coach Alignment Visualization
     st.header('Coach Alignment')
     create_plot('Coach Alignment', 'Coach Alignment', 'Coach Alignment Score', yaxis_range=[1, 6])
 
+    # Apprentice NPS Visualization
     st.header('Apprentice NPS')
     create_plot('Apprentice NPS', 'Apprentice NPS', 'Apprentice NPS')
 
+    # Manager ROI Score Visualization
     st.header('Manager ROI Score')
     create_plot('Manager ROI Score', 'Manager ROI Score', 'Manager ROI Score', yaxis_range=[1, 6])
 
+    # Manager NPS Visualization
     st.header('Manager NPS')
     create_plot('Manager NPS', 'Manager NPS', 'Manager NPS')
 
+    # Attendance Data Visualization
     st.header('Percentage of Learners Without Attendance')
     create_plot('Percentage of Learners Without Attendance in Last 30 Days', 'Learners Without Attendance in Last 30 Days', 'Percentage')
 
+    # Percentage of Learners Off Track Visualization
     st.header('Percentage of Learners Off Track')
     create_plot('Percentage of Learners Offtrack', 'Percentage of Learners Off Track', 'Percentage')
