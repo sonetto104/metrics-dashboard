@@ -22,6 +22,12 @@ def visualise_data_page():
     # Combine all data for each metric
     combined_data = pd.concat([individual_data, department_data, programme_data], ignore_index=True)
 
+    # Check if there is any data available
+    if combined_data.empty:
+        st.title('Comparison of Metrics Over Time')
+        st.write('No data to display')
+        return
+
     # Ensure 'Date' column is in datetime format
     combined_data['Date'] = pd.to_datetime(combined_data['Date'])
 
@@ -51,21 +57,26 @@ def visualise_data_page():
 
     # Function to create plots for a given metric with optional y-axis range
     def create_plot(y_column, title, yaxis_title, yaxis_range=None):
-        fig = px.line(
-            grouped_data, 
-            x='Date', 
-            y=y_column, 
-            color='Source', 
-            markers=True, 
-            title=title
-        )
-        fig.update_layout(
-            yaxis_title=yaxis_title,
-            xaxis=dict(tickformat='%d-%m-%Y')
-        )
-        if yaxis_range:
-            fig.update_yaxes(range=yaxis_range)
-        st.plotly_chart(fig)
+        if y_column in grouped_data.columns and not grouped_data[y_column].dropna().empty:
+            fig = px.line(
+                grouped_data, 
+                x='Date', 
+                y=y_column, 
+                color='Source', 
+                markers=True, 
+                title=title
+            )
+            fig.update_layout(
+                yaxis_title=yaxis_title,
+                xaxis=dict(tickformat='%d-%m-%Y')
+            )
+            if yaxis_range:
+                fig.update_yaxes(range=yaxis_range)
+            st.plotly_chart(fig)
+        else:
+            st.write(f'No data to display for {title}')
+
+    # Create visualizations
 
     # Coach Expertise Visualization
     st.header('Coach Expertise')
